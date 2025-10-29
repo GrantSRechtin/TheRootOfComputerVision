@@ -72,7 +72,7 @@ class testing():
 
             cv2.waitKey(5)
 
-            print("Number of Contours Found = " + str(len(contours)))
+            #print("Number of Contours Found = " + str(len(contours)))
 
     def set_rl(self, val):
         """ A callback function to handle the OpenCV slider to select the red lower bound """
