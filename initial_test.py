@@ -16,23 +16,28 @@ class testing():
 
         self.vc = cv2.VideoCapture(0)  # Webcam w=640 h=480
 
-        self.img = cv2.imread("Eyrie_Dynasties_-_Faction_Board.webp")
-        self.img_contours = cv2.imread("Eyrie_Dynasties_-_Faction_Board.webp")
+        path = "board_with_table.png"
+        self.img = cv2.imread(path)
+        self.img_contours = cv2.imread(path)        
 
-        # Lighter Blue Background
-        # self.rl = 22
-        # self.rh = 230
-        # self.bl = 120
-        # self.bh = 120
-        # self.gl = 120
-        # self.gh = 120
+        # self.img = self.blur(self.img)
+        # self.img_contours = self.blur(self.img_contours)
 
-        self.rl = 29
-        self.rh = 98
-        self.bl = 58
-        self.bh = 192
-        self.gl = 31
-        self.gh = 115
+        # Card Slots
+        # self.rl = 0
+        # self.rh = 255
+        # self.gl = 0
+        # self.gh = 41
+        # self.bl = 38
+        # self.bh = 130
+
+        # Birdsong
+        self.rl = 200
+        self.rh = 240
+        self.gl = 140
+        self.gh = 200
+        self.bl = 70
+        self.bh = 150
 
         if self.vc.isOpened():  # try to get the first frame
             self.cv_image = self.img  # self.vc.read()
@@ -68,12 +73,6 @@ class testing():
             
             self.binary_image = cv2.inRange(
                 self.cv_image, (self.bl, self.gl, self.rl), (self.bh, self.gh, self.rh))
-            
-            self.binary_image_opp_p1 = cv2.inRange(
-                self.cv_image, (0, 0, 0), (self.bl, self.gl, self.rl))
-            self.binary_image_opp_p2 = cv2.inRange(
-                self.cv_image, (self.bh, self.gh, self.rh), (255, 255, 255))
-            self.binary_image_opp = self.binary_image_opp_p1 + self.binary_image_opp_p2
 
             contours = self.create_contours()
 
@@ -90,8 +89,15 @@ class testing():
                 cv2.drawContours(
                     self.cv_image_with_contours, contours[self.i][1], -1, (0, 255, 0), 3)
                 self.i += 1
+            elif key == 9:
+                xs, ys = self.find_border(contours[0][1])
+                self.set_border(xs,ys)
 
             cv2.waitKey(5)
+    
+    def blur(self, img):
+        h, w, channels = img.shape
+        return cv2.resize(cv2.resize(img, (w//2, h//2), interpolation=cv2.INTER_AREA),(w,h))
 
     def create_binary_contours(self):
 
@@ -117,6 +123,31 @@ class testing():
         contours = sorted(contours, key=itemgetter(0))[::-1]
 
         return contours
+    
+    def find_border(self,contour):
+        xl_ratio = 15/270
+        xr_ratio = 345/270
+        yb_ratio = 30/265
+        yt_ratio = 180/265
+
+        xs = [c[0][0] for c in contour]
+        ys = [c[0][1] for c in contour]
+
+        c_xs = (min(xs),max(xs))
+        c_ys = (max(ys),min(ys))
+
+        c_width = abs(max(xs) - min(xs))
+        c_height = abs(max(ys) - min(ys))
+
+        b_x = (int(-xl_ratio*c_width+c_xs[0]), int(xr_ratio*c_width+c_xs[1]))
+        b_y = (int(yb_ratio*c_height+c_ys[0]), int(-yt_ratio*c_height+c_ys[1]))
+
+        return b_x, b_y
+    
+    def set_border(self, xs, ys):
+        print(xs[0],xs[1])
+        self.cv_image = self.cv_image[ys[1]:ys[0],xs[0]:xs[1]]
+        self.cv_image_with_contours = self.cv_image_with_contours[ys[1]:ys[0],xs[0]:xs[1]]
 
     def set_rl(self, val):
         """ A callback function to handle the OpenCV slider to select the red lower bound """
@@ -145,3 +176,10 @@ class testing():
 
 test = testing()
 test.loop_wrapper()
+
+
+
+
+# ratios
+# x 30 - 45 -- 315 - 660
+# y 580 - 550 -- 285 - 100
