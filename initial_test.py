@@ -20,12 +20,12 @@ class testing():
         self.img_contours = cv2.imread("Eyrie_Dynasties_-_Faction_Board.webp")
 
         # Lighter Blue Background
-        # self.rl = 98
-        # self.rh = 29
-        # self.bl = 192
-        # self.bh = 58
-        # self.gl = 115
-        # self.gh = 31
+        # self.rl = 22
+        # self.rh = 230
+        # self.bl = 120
+        # self.bh = 120
+        # self.gl = 120
+        # self.gh = 120
 
         self.rl = 29
         self.rh = 98
@@ -69,11 +69,11 @@ class testing():
             self.binary_image = cv2.inRange(
                 self.cv_image, (self.bl, self.gl, self.rl), (self.bh, self.gh, self.rh))
             
-            # self.binary_image_opp_p1 = cv2.inRange(
-            #     self.cv_image, (0, 0, 0), (self.bl, self.gl, self.rl))
-            # self.binary_image_opp_p2 = cv2.inRange(
-            #     self.cv_image, (self.bh, self.gh, self.rh), (0, 0, 0))
-            # self.binary_image_opp = self.binary_image_opp_p1 + self.binary_image_opp_p2
+            self.binary_image_opp_p1 = cv2.inRange(
+                self.cv_image, (0, 0, 0), (self.bl, self.gl, self.rl))
+            self.binary_image_opp_p2 = cv2.inRange(
+                self.cv_image, (self.bh, self.gh, self.rh), (255, 255, 255))
+            self.binary_image_opp = self.binary_image_opp_p1 + self.binary_image_opp_p2
 
             contours = self.create_contours()
 
@@ -93,9 +93,22 @@ class testing():
 
             cv2.waitKey(5)
 
-    def create_contours(self):
+    def create_binary_contours(self):
 
         edged = cv2.Canny(self.binary_image, 100, 200)
+        contour_list, hierarchy = cv2.findContours(edged,
+                                                   cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        contour_areas = [cv2.contourArea(c) for c in contour_list]
+        contours = [(contour_areas[i], contour_list[i])
+                    for i in range(len(contour_list))]
+        contours = sorted(contours, key=itemgetter(0))[::-1]
+
+        return contours
+    
+    def create_contours(self):
+
+        gray = cv2.cvtColor(self.cv_image, cv2.COLOR_BGR2GRAY)
+        edged = cv2.Canny(gray, 30, 200)
         contour_list, hierarchy = cv2.findContours(edged,
                                                    cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         contour_areas = [cv2.contourArea(c) for c in contour_list]
