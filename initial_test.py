@@ -12,17 +12,20 @@ class testing():
         self.cv_image = None
         self.cv_image_with_contours = None
 
+        self.i = 0
+
         self.vc = cv2.VideoCapture(0)  # Webcam w=640 h=480
 
         self.img = cv2.imread("Eyrie_Dynasties_-_Faction_Board.webp")
+        self.img_contours = cv2.imread("Eyrie_Dynasties_-_Faction_Board.webp")
 
         # Lighter Blue Background
-        # self.rl = 29
-        # self.rh = 98
-        # self.bl = 58
-        # self.bh = 192
-        # self.gl = 31
-        # self.gh = 115
+        # self.rl = 98
+        # self.rh = 29
+        # self.bl = 192
+        # self.bh = 58
+        # self.gl = 115
+        # self.gh = 31
 
         self.rl = 29
         self.rh = 98
@@ -33,7 +36,7 @@ class testing():
 
         if self.vc.isOpened():  # try to get the first frame
             self.cv_image = self.img  # self.vc.read()
-            self.cv_image_with_contours = self.img
+            self.cv_image_with_contours = self.img_contours
 
     def loop_wrapper(self):
         """ loops run_loop """
@@ -62,8 +65,16 @@ class testing():
 
         if not self.cv_image is None:
 
+            
             self.binary_image = cv2.inRange(
                 self.cv_image, (self.bl, self.gl, self.rl), (self.bh, self.gh, self.rh))
+            
+            # self.binary_image_opp_p1 = cv2.inRange(
+            #     self.cv_image, (0, 0, 0), (self.bl, self.gl, self.rl))
+            # self.binary_image_opp_p2 = cv2.inRange(
+            #     self.cv_image, (self.bh, self.gh, self.rh), (0, 0, 0))
+            # self.binary_image_opp = self.binary_image_opp_p1 + self.binary_image_opp_p2
+
             contours = self.create_contours()
 
             cv2.imshow('video_window', self.cv_image)
@@ -77,7 +88,8 @@ class testing():
                 self.active = False
             elif key == 32:
                 cv2.drawContours(
-                    self.cv_image_with_contours, contours[0][1], -1, (0, 255, 0), 3)
+                    self.cv_image_with_contours, contours[self.i][1], -1, (0, 255, 0), 3)
+                self.i += 1
 
             cv2.waitKey(5)
 
