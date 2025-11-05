@@ -32,12 +32,28 @@ class testing():
         # self.bh = 130
 
         # Birdsong
-        self.rl = 200
+        # self.rl = 200
+        # self.rh = 240
+        # self.gl = 140
+        # self.gh = 200
+        # self.bl = 70
+        # self.bh = 150
+
+        # Birdsong 2
+        self.rl = 196
         self.rh = 240
-        self.gl = 140
-        self.gh = 200
-        self.bl = 70
-        self.bh = 150
+        self.gl = 155
+        self.gh = 196
+        self.bl = 0
+        self.bh = 82
+
+        # Main
+        # self.rl = 190
+        # self.rh = 240
+        # self.gl = 178
+        # self.gh = 255
+        # self.bl = 168
+        # self.bh = 255
 
         if self.vc.isOpened():  # try to get the first frame
             self.cv_image = self.img  # self.vc.read()
@@ -74,7 +90,8 @@ class testing():
             self.binary_image = cv2.inRange(
                 self.cv_image, (self.bl, self.gl, self.rl), (self.bh, self.gh, self.rh))
 
-            contours = self.create_contours()
+            #contours = self.create_contours()
+            contours = self.create_binary_contours()
 
             cv2.imshow('video_window', self.cv_image)
             cv2.imshow('binary_window', self.binary_image)
@@ -140,12 +157,13 @@ class testing():
         c_height = abs(max(ys) - min(ys))
 
         b_x = (int(-xl_ratio*c_width+c_xs[0]), int(xr_ratio*c_width+c_xs[1]))
-        b_y = (int(yb_ratio*c_height+c_ys[0]), int(-yt_ratio*c_height+c_ys[1]))
+        b_y = (int(yb_ratio*c_height+c_ys[0]), max(0,int(-yt_ratio*c_height+c_ys[1])))
 
         return b_x, b_y
     
     def set_border(self, xs, ys):
         print(xs[0],xs[1])
+        print(ys[1],ys[0])
         self.cv_image = self.cv_image[ys[1]:ys[0],xs[0]:xs[1]]
         self.cv_image_with_contours = self.cv_image_with_contours[ys[1]:ys[0],xs[0]:xs[1]]
 
