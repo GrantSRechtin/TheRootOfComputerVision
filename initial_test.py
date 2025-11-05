@@ -7,7 +7,7 @@ from operator import itemgetter
 from itertools import combinations
 
 
-class testing():
+class testing:
 
     def __init__(self):
 
@@ -54,22 +54,28 @@ class testing():
             self.cv_image = self.img  # self.vc.read()
 
     def loop_wrapper(self):
-        """ loops run_loop """
+        """loops run_loop"""
 
-        cv2.namedWindow('video_window', cv2.WINDOW_NORMAL)
-        cv2.namedWindow('binary_window')
-        cv2.createTrackbar('red lower bound', 'binary_window',
-                           self.rl, 255, self.set_rl)
-        cv2.createTrackbar('red upper bound', 'binary_window',
-                           self.rh, 255, self.set_rh)
-        cv2.createTrackbar('green lower bound',
-                           'binary_window', self.gl, 255, self.set_gl)
-        cv2.createTrackbar('green upper bound',
-                           'binary_window', self.gh, 255, self.set_gh)
-        cv2.createTrackbar('blue lower bound', 'binary_window',
-                           self.bl, 255, self.set_bl)
-        cv2.createTrackbar('blue upper bound', 'binary_window',
-                           self.bh, 255, self.set_bh)
+        cv2.namedWindow("video_window", cv2.WINDOW_NORMAL)
+        cv2.namedWindow("binary_window")
+        cv2.createTrackbar(
+            "red lower bound", "binary_window", self.rl, 255, self.set_rl
+        )
+        cv2.createTrackbar(
+            "red upper bound", "binary_window", self.rh, 255, self.set_rh
+        )
+        cv2.createTrackbar(
+            "green lower bound", "binary_window", self.gl, 255, self.set_gl
+        )
+        cv2.createTrackbar(
+            "green upper bound", "binary_window", self.gh, 255, self.set_gh
+        )
+        cv2.createTrackbar(
+            "blue lower bound", "binary_window", self.bl, 255, self.set_bl
+        )
+        cv2.createTrackbar(
+            "blue upper bound", "binary_window", self.bh, 255, self.set_bh
+        )
 
         while self.active:
             self.run_loop()
@@ -81,7 +87,8 @@ class testing():
 
             # Get initial binary image
             self.binary_image = cv2.inRange(
-                self.cv_image, self.birdsong_init[0:3], self.birdsong_init[3:6])
+                self.cv_image, self.birdsong_init[0:3], self.birdsong_init[3:6]
+            )
             # self.binary_image = cv2.inRange(
             #     self.cv_image, (self.rl, self.gl, self.bl), (self.rh, self.gh, self.bh))
 
@@ -106,18 +113,22 @@ class testing():
 
     def blur(self, img):
         h, w, channels = img.shape
-        return cv2.resize(cv2.resize(img, (self.sw, self.sh), interpolation=cv2.INTER_AREA), (w, h))
+        return cv2.resize(
+            cv2.resize(img, (self.sw, self.sh), interpolation=cv2.INTER_AREA), (w, h)
+        )
 
     def create_binary_contours(self, binary_image, invert=False):
 
         if invert:
             binary_image = cv2.bitwise_not(binary_image)
 
-        contour_list, hierarchy = cv2.findContours(binary_image,
-                                                   cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+        contour_list, hierarchy = cv2.findContours(
+            binary_image, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE
+        )
         contour_areas = [cv2.contourArea(c) for c in contour_list]
-        contours = [(contour_areas[i], contour_list[i])
-                    for i in range(len(contour_list))]
+        contours = [
+            (contour_areas[i], contour_list[i]) for i in range(len(contour_list))
+        ]
         contours = sorted(contours, key=itemgetter(0))[::-1]
 
         return contours
@@ -126,11 +137,13 @@ class testing():
 
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         edged = cv2.Canny(gray, 30, 200)
-        contour_list, hierarchy = cv2.findContours(edged,
-                                                   cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        contour_list, hierarchy = cv2.findContours(
+            edged, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE
+        )
         contour_areas = [cv2.contourArea(c) for c in contour_list]
-        contours = [(contour_areas[i], contour_list[i])
-                    for i in range(len(contour_list))]
+        contours = [
+            (contour_areas[i], contour_list[i]) for i in range(len(contour_list))
+        ]
         contours = sorted(contours, key=itemgetter(0))[::-1]
 
         return contours
@@ -142,23 +155,31 @@ class testing():
         b_ys = (max(ys), min(ys))
         b_width = abs(max(xs) - min(xs))
         b_height = abs(max(ys) - min(ys))
-        b_cx = (int)(min(xs)+(b_width/2))
-        b_cy = (int)(min(ys)+(b_height/2))
+        b_cx = (int)(min(xs) + (b_width / 2))
+        b_cy = (int)(min(ys) + (b_height / 2))
 
         w = len(self.cv_image)
         h = len(self.cv_image[0])
 
         circle = np.zeros((w, h), dtype=np.uint8)
-        cv2.rectangle(circle, (min(xs)-2*b_width, min(ys)-b_height),
-                      (max(xs)+2*b_width, max(ys)+b_height), 255, -1)
+        cv2.rectangle(
+            circle,
+            (min(xs) - 2 * b_width, min(ys) - b_height),
+            (max(xs) + 2 * b_width, max(ys) + b_height),
+            255,
+            -1,
+        )
 
         binary_image = cv2.inRange(
-            self.cv_image, (c_range[0], c_range[1], c_range[2]), (c_range[3], c_range[4], c_range[5]))
+            self.cv_image,
+            (c_range[0], c_range[1], c_range[2]),
+            (c_range[3], c_range[4], c_range[5]),
+        )
 
         birdsong_region = cv2.bitwise_and(binary_image, circle)
         contours = self.create_binary_contours(birdsong_region)
 
-        blank_image = np.zeros((h,w,3), np.uint8)
+        blank_image = np.zeros((h, w, 3), np.uint8)
         cv2.drawContours(blank_image, [contours[0][1]], 0, (0, 0, 255), 1)
 
         app = appx_best_fit_ngon(blank_image)
@@ -180,30 +201,30 @@ class testing():
     def set_border(self, xs, ys):
         print(xs[0], xs[1])
         print(ys[1], ys[0])
-        self.cv_image = self.cv_image[ys[1]:ys[0], xs[0]:xs[1]]
+        self.cv_image = self.cv_image[ys[1] : ys[0], xs[0] : xs[1]]
 
     def set_rl(self, val):
-        """ A callback function to handle the OpenCV slider to select the red lower bound """
+        """A callback function to handle the OpenCV slider to select the red lower bound"""
         self.rl = val
 
     def set_rh(self, val):
-        """ A callback function to handle the OpenCV slider to select the red upper bound """
+        """A callback function to handle the OpenCV slider to select the red upper bound"""
         self.rh = val
 
     def set_gl(self, val):
-        """ A callback function to handle the OpenCV slider to select the green lower bound """
+        """A callback function to handle the OpenCV slider to select the green lower bound"""
         self.gl = val
 
     def set_gh(self, val):
-        """ A callback function to handle the OpenCV slider to select the green upper bound """
+        """A callback function to handle the OpenCV slider to select the green upper bound"""
         self.gh = val
 
     def set_bl(self, val):
-        """ A callback function to handle the OpenCV slider to select the blue lower bound """
+        """A callback function to handle the OpenCV slider to select the blue lower bound"""
         self.bl = val
 
     def set_bh(self, val):
-        """ A callback function to handle the OpenCV slider to select the blue upper bound """
+        """A callback function to handle the OpenCV slider to select the blue upper bound"""
         self.bh = val
 
 
@@ -250,8 +271,7 @@ def appx_best_fit_ngon(mask_cv2, n: int = 4) -> list[(int, int)]:
             intersect = adj_edge_1.intersection(adj_edge_2)[0]
 
             # the area of the triangle we'll be adding
-            area = sympy.N(sympy.Triangle(
-                edge_pt_1, intersect, edge_pt_2).area)
+            area = sympy.N(sympy.Triangle(edge_pt_1, intersect, edge_pt_2).area)
             # should be the lowest
             if best_candidate and best_candidate[1] < area:
                 continue
