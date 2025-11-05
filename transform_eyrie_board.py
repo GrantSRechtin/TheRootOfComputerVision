@@ -46,36 +46,36 @@ def transform_board(birdsong_corners, transformed_corners, image):
         - perc_uncertainty * scale_factor * 8.5
     )
 
-    return trans_image[:, x_min:x_max]
+    return trans_image#[:, x_min:x_max]
 
 
-def click_event(event, x, y, flags, params):
-    if event == cv2.EVENT_LBUTTONDOWN:
-        print(f"Coordinates: ({x}, {y})")
-        font = cv2.FONT_HERSHEY_PLAIN
-        cv2.putText(
-            test_image.img, f"({x}, {y})", (x, y), font, 2.5, (255, 255, 0), 1, 10
-        )
-        cv2.imshow("image", test_image.img)
+# def click_event(event, x, y, flags, params):
+#     if event == cv2.EVENT_LBUTTONDOWN:
+#         print(f"Coordinates: ({x}, {y})")
+#         font = cv2.FONT_HERSHEY_PLAIN
+#         cv2.putText(
+#             test_image.img, f"({x}, {y})", (x, y), font, 2.5, (255, 255, 0), 1, 10
+#         )
+#         cv2.imshow("image", test_image.img)
 
 
-test_image = test()
+# test_image = test()
 
-while test_image.active:
-    cv2.namedWindow("Original image")
-    cv2.namedWindow("Transformed image")
+# while test_image.active:
+#     cv2.namedWindow("Original image")
+#     cv2.namedWindow("Transformed image")
 
-    # birdsong_corners = [(47, 241), (44, 263), (285, 257), (283, 281)]
-    # birdsong_corners = [(295, 541), (300, 578), (650, 482), (657, 518)]
-    birdsong_corners = [(1046, 3048), (1163, 3086), (1389, 2198), (1492, 2224)]
-    transformed_corners = [(46, 258), (46, 276), (204.4, 258), (204.4, 276)]
-    cv2.imshow("Original image", test_image.img)
-    trans_image = transform_board(birdsong_corners, transformed_corners, test_image.img)
-    cv2.imshow("Transformed image", trans_image)
-    cv2.setMouseCallback("Original image", click_event)
+#     # birdsong_corners = [(47, 241), (44, 263), (285, 257), (283, 281)]
+#     # birdsong_corners = [(295, 541), (300, 578), (650, 482), (657, 518)]
+#     birdsong_corners = [(1046, 3048), (1163, 3086), (1389, 2198), (1492, 2224)]
+#     transformed_corners = [(46, 258), (46, 276), (204.4, 258), (204.4, 276)]
+#     cv2.imshow("Original image", test_image.img)
+#     trans_image = transform_board(birdsong_corners, transformed_corners, test_image.img)
+#     cv2.imshow("Transformed image", trans_image)
+#     cv2.setMouseCallback("Original image", click_event)
 
-    key = cv2.waitKey(20)
-    if key == 27:
-        cv2.destroyAllWindows()
-        test_image.vc.release()
-        test_image.active = False
+#     key = cv2.waitKey(20)
+#     if key == 27:
+#         cv2.destroyAllWindows()
+#         test_image.vc.release()
+#         test_image.active = False

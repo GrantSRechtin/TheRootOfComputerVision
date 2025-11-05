@@ -2,7 +2,8 @@ import cv2
 import time
 import numpy as np
 import sympy
-import copy
+import math
+import transform_eyrie_board
 from operator import itemgetter
 from itertools import combinations
 
@@ -92,29 +93,35 @@ class testing:
             # self.binary_image = cv2.inRange(
             #     self.cv_image, (self.rl, self.gl, self.bl), (self.rh, self.gh, self.bh))
 
-            # Get birdsong specific contour
-            contours = self.create_binary_contours(self.binary_image)
-            pts = self.find_birdsong_border(contours[0][1], self.birdsong)
-
-            # cv2.imshow('video_window', self.cv_image)
+            cv2.imshow('video_window', self.cv_image)
             # cv2.imshow('binary_window', self.binary_image)
 
-            self.check_input(contours)
+            self.check_input()
 
-    def check_input(self, contours):
+    def check_input(self):
         key = cv2.waitKey(20)
         if key == 27:
             cv2.destroyAllWindows()
             self.vc.release()
             self.active = False
-        elif key == 9:
-            xs, ys = self.find_border(contours[0][1])
-            self.set_border(xs, ys)
+        elif key == 32:
+            contours = self.create_binary_contours(self.binary_image)
+            pts = self.find_birdsong_border(contours[0][1], self.birdsong)
+            print(pts)
+            # Br Bl Tl Tr
+            transformed_corners = [
+                (204.4, 276), (46, 276), (46, 258), (204.4, 258)]
+            cv2.namedWindow("Original image")
+            cv2.namedWindow("Transformed image")
+            cv2.imshow("Original image", self.cv_image)
+            trans_image = transform_eyrie_board.transform_board(
+                pts, transformed_corners, self.cv_image)
+            cv2.imshow("Transformed image", trans_image)
 
     def blur(self, img):
         h, w, channels = img.shape
         return cv2.resize(
-            cv2.resize(img, (self.sw, self.sh), interpolation=cv2.INTER_AREA), (w, h)
+            cv2.resize(img, (700, 550), interpolation=cv2.INTER_AREA), (w, h)
         )
 
     def create_binary_contours(self, binary_image, invert=False):
@@ -184,8 +191,16 @@ class testing:
 
         app = appx_best_fit_ngon(blank_image)
         pts = np.array(app, dtype=np.int32)
-        if pts.ndim == 2 and pts.shape[1] == 2:
-            pts = pts.reshape((-1, 1, 2))
+        # if pts.ndim == 2 and pts.shape[1] == 2:
+        #     pts = pts.reshape((-1, 1, 2))
+
+        for i in range(3):
+            for pt in pts:
+                pt = move_closest_point_towards(pt, contours[0][1])
+
+        # pts[2][1] += 3
+        # pts[3][1] += 3
+        # pts[3][0] -= 3
 
         contour = self.cv_image.copy()
         cv2.drawContours(contour, [contours[0][1]], 0, (0, 0, 255), 1)
@@ -201,7 +216,7 @@ class testing:
     def set_border(self, xs, ys):
         print(xs[0], xs[1])
         print(ys[1], ys[0])
-        self.cv_image = self.cv_image[ys[1] : ys[0], xs[0] : xs[1]]
+        self.cv_image = self.cv_image[ys[1]: ys[0], xs[0]: xs[1]]
 
     def set_rl(self, val):
         """A callback function to handle the OpenCV slider to select the red lower bound"""
@@ -271,7 +286,8 @@ def appx_best_fit_ngon(mask_cv2, n: int = 4) -> list[(int, int)]:
             intersect = adj_edge_1.intersection(adj_edge_2)[0]
 
             # the area of the triangle we'll be adding
-            area = sympy.N(sympy.Triangle(edge_pt_1, intersect, edge_pt_2).area)
+            area = sympy.N(sympy.Triangle(
+                edge_pt_1, intersect, edge_pt_2).area)
             # should be the lowest
             if best_candidate and best_candidate[1] < area:
                 continue
@@ -291,6 +307,52 @@ def appx_best_fit_ngon(mask_cv2, n: int = 4) -> list[(int, int)]:
     hull = [(int(x), int(y)) for x, y in hull]
 
     return hull
+
+
+def move_closest_point_towards(target_point, points, step=1.0):
+    """Move the target_point a little closer to the nearest point in `points`.
+
+    Parameters
+    - target_point: (x, y) tuple or array-like coordinates of the point to move.
+    - points: sequence or ndarray of shape (N,2) containing (x,y) points.
+    - step: positive float distance to move the target toward the nearest point.
+
+    Returns
+    - new_target: ndarray shape (2,) with the moved target coordinates.
+    - idx: index of the closest point in `points`.
+
+    Notes
+    - If the closest point equals the target, no movement is performed.
+    - If `step` is larger than the distance to the closest point, the
+      target will be moved exactly onto that point.
+    """
+    arr = np.asarray(points)
+    if arr.ndim == 3 and arr.shape[1] == 1 and arr.shape[2] == 2:
+        pts = arr.reshape((-1, 2)).astype(float)
+    elif arr.ndim == 2 and arr.shape[1] == 2:
+        pts = arr.astype(float)
+    elif arr.ndim == 1 and arr.dtype == object:
+        # list of tuples
+        pts = np.asarray([tuple(p) for p in arr], dtype=float)
+    else:
+        raise ValueError("points must be a sequence of (x,y) pairs")
+
+    tgt = np.asarray(target_point, dtype=float).reshape(2,)
+
+    # compute vector from target to each candidate point
+    deltas = pts - tgt  # shape (N,2): vector from target -> candidate
+    dists = np.linalg.norm(deltas, axis=1)
+    idx = int(np.argmin(dists))
+    dist = dists[idx]
+
+    if dist == 0 or step == 0:
+        return tgt, idx
+
+    move = min(step, dist)
+    direction = deltas[idx] / dist
+    new_tgt = tgt + direction * move
+
+    return new_tgt, idx
 
 
 if __name__ == "__main__":
