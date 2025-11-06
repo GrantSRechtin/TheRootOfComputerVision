@@ -9,6 +9,9 @@ from operator import itemgetter
 from itertools import combinations
 
 
+# Adjust range if no area found
+
+
 class player_board:
 
     def __init__(self):
@@ -30,8 +33,13 @@ class player_board:
         self.sw = len(self.base_img)
         self.sh = len(self.base_img[0])
 
+        #path = "IMG_1695.JPG"
         path = "52B-RootBaseFactionBoardwithComponents-Editv2-web.webp"
+        #path = "board_with_table.png"
         self.img = cv2.imread(path)
+
+        self.clear = copy.copy(self.img)
+
         self.img = blur(self.img)
 
         # Card Slots
@@ -49,7 +57,7 @@ class player_board:
         self.birdsong_init = (0, 155, 196, 82, 196, 240)
 
         # Main
-        self.binary_calibration = (70, 140, 150, 150, 200, 240)
+        self.binary_calibration = [70, 130, 150, 130, 200, 240]
 
         if self.vc.isOpened():
             self.cv_image = self.img  # self.vc.read()
@@ -89,7 +97,7 @@ class player_board:
 
     def update_board(self):
         contours = roost_detection_test.detect_roosts(self)
-        print(contours)
+        #print(contours)
         for i in enumerate(contours):
             cv2.drawContours(
                 self.current_image,
@@ -112,9 +120,9 @@ class player_board:
 
         contours = create_binary_contours(bs_binary)
         pts = self.find_birdsong_border(contours[0][1], self.birdsong)
-        print(pts)
+        #print(pts)
         transformed_corners = [
-            (204.4, 276), (46, 276), (46, 258), (204.4, 258)]
+            (46, 258), (46, 276), (204.4, 258), (204.4, 276)]
         self.translated_image = transform_eyrie_board.transform_board(
             pts, transformed_corners, self.cv_image
         )
@@ -154,7 +162,15 @@ class player_board:
             (c_range[3], c_range[4], c_range[5]),
         )
 
-        #map_to_list(binary_image)
+        # binary_adjustment_image = cv2.inRange(
+        #     self.clear,
+        #     (c_range[0], c_range[1], c_range[2]),
+        #     (c_range[3], c_range[4], c_range[5]),
+        # )
+
+        #birdsong_points = map_to_list(binary_adjustment_image)
+
+        #print(birdsong_points)
 
         birdsong_region = cv2.bitwise_and(binary_image, circle)
         contours = create_binary_contours(birdsong_region)
@@ -165,8 +181,12 @@ class player_board:
         app = appx_best_fit_ngon(blank_image)
         pts = np.array(app, dtype=np.int32)
 
+        print(f"before: {pts}")
         for i in range(len(pts)):
-            pts[i], _ = move_closest_point_towards(pts[i], contours[0][1],1)
+            _, d = move_closest_point_towards(pts[i], contours[0][1],2)
+            while d > 3:
+                pts[i], d = move_closest_point_towards(pts[i], contours[0][1],2)
+        print(f"after: {pts}")
 
         contour = self.cv_image.copy()
         cv2.drawContours(contour, [contours[0][1]], 0, (0, 0, 255), 1)
@@ -174,7 +194,10 @@ class player_board:
         result = self.cv_image.copy()
         cv2.polylines(result, [pts], True, (0, 0, 255), 2)
 
+        cv2.namedWindow("CONTOUR", cv2.WINDOW_NORMAL)
         cv2.imshow("CONTOUR", contour)
+
+        cv2.namedWindow("QUAD", cv2.WINDOW_NORMAL)
         cv2.imshow("QUAD", result)
 
         return pts
@@ -210,7 +233,7 @@ class player_board:
 
     def binary_testing(self):
         self.bt = True
-        cv2.namedWindow("binary_window")
+        cv2.namedWindow("binary_window", cv2.WINDOW_NORMAL)
         cv2.createTrackbar(
             "red lower bound", "binary_window", self.binary_calibration[0], 255, self.set_rl
         )
@@ -266,7 +289,6 @@ def create_contours(image):
     contours = sorted(contours, key=itemgetter(0))[::-1]
 
     return contours
-
 
 def appx_best_fit_ngon(mask_cv2, n: int = 4) -> list[(int, int)]:
     # convex hull of the input mask
@@ -334,14 +356,16 @@ def appx_best_fit_ngon(mask_cv2, n: int = 4) -> list[(int, int)]:
     return hull
 
 def map_to_list(map):
-    list = np.array()
-    for x in range(len(map)):
-        for y in range(len(map[0])):
-            if map[x][y] == 255:
-                list.append((x,y))
-    return list        
+    coords = []
+    h = len(map)
+    w = len(map[0]) if h > 0 else 0
+    for x in range(h):
+        for y in range(w):
+            if map[x][y] != 255:
+                coords.append([x, y])
+    return np.array(coords, dtype=int)
 
-def move_closest_point_towards(target_point, points, step=1.0):
+def move_closest_point_towards(target_point, points, step=1):
     """Move the target_point a little closer to the nearest point in `points`.
 
     Parameters
@@ -367,6 +391,7 @@ def move_closest_point_towards(target_point, points, step=1.0):
         # list of tuples
         pts = np.asarray([tuple(p) for p in arr], dtype=float)
     else:
+        #print(points)
         raise ValueError("points must be a sequence of (x,y) pairs")
 
     tgt = np.asarray(target_point, dtype=float).reshape(
@@ -379,14 +404,17 @@ def move_closest_point_towards(target_point, points, step=1.0):
     idx = int(np.argmin(dists))
     dist = dists[idx]
 
+    #print(idx)
+
     if dist == 0 or step == 0:
         return tgt, idx
 
-    move = dist #min(step, dist)
+    move = min(step, dist)
+    
     direction = deltas[idx] / dist
     new_tgt = tgt + direction * move
 
-    return new_tgt, idx
+    return new_tgt, dist
 
 
 if __name__ == "__main__":
