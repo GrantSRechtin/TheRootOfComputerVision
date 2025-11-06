@@ -1,4 +1,5 @@
 import cv2
+import math
 import numpy as np
 from initial_test import testing as test
 
@@ -15,17 +16,37 @@ def transform_board(birdsong_corners, transformed_corners, image):
         transformed_corners - A list of the four corners of the birdsong
             caption after transformation, containing tuples of floats
             in the form (x, y).
+            Order should be top-left, bottom-left, top-right, bottom-right.
         image - The unmodified cv2 image.
 
     returns:
         A cv2 image that is flat and square.
     """
-    # Define the max width of the final image
+    sorted_corners = sorted(birdsong_corners, key=lambda item: item[0])
+    most_left = sorted_corners[0]
+    second_left = ()
+    remaining_indices = ()
+    # Arbitrarily large number
+    prev_dist = 10000
+    for i in enumerate(sorted_corners[1:]):
+        new_dist = math.dist(most_left, i[1])
+        if new_dist < prev_dist:
+            prev_dist = new_dist
+            second_left = i[1]
+            remaining_indices = (1 + (i[0] + 1) % 3, 1 + (i[0] + 2) % 3)
+    ordered_corners = sorted([most_left, second_left], key=lambda item: item[1])
+    remaining_corners = [
+        sorted_corners[remaining_indices[0]],
+        sorted_corners[remaining_indices[1]],
+    ]
+    remaining_corners = sorted(remaining_corners, key=lambda item: item[1])
+    ordered_corners += [remaining_corners[0], remaining_corners[1]]
+
     img_width = 700
     # Define the max height of the final image
     img_height = 550
     # Define input and output corners to generation transformation
-    input_pts = np.float32(birdsong_corners)
+    input_pts = np.float32(ordered_corners)
     output_pts = np.float32(transformed_corners)
     persp_trans = cv2.getPerspectiveTransform(input_pts, output_pts)
     # Apply transformation to image
