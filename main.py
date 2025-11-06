@@ -390,5 +390,5 @@ def move_closest_point_towards(target_point, points, step=1.0):
 
 
 if __name__ == "__main__":
-    test = testing()
-    test.loop_wrapper()
+    playerBoard = player_board()
+    playerBoard.loop_wrapper()
