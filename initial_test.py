@@ -44,12 +44,12 @@ class testing:
         self.birdsong_init = (0, 155, 196, 82, 196, 240)
 
         # Main
-        self.rl = 70
-        self.rh = 150
-        self.gl = 140
-        self.gh = 200
-        self.bl = 150
-        self.bh = 240
+        # self.rl = 70
+        # self.rh = 150
+        # self.gl = 140
+        # self.gh = 200
+        # self.bl = 150
+        # self.bh = 240
 
         if self.vc.isOpened():
             self.cv_image = self.img  # self.vc.read()
@@ -58,25 +58,25 @@ class testing:
         """loops run_loop"""
 
         cv2.namedWindow("video_window", cv2.WINDOW_NORMAL)
-        cv2.namedWindow("binary_window")
-        cv2.createTrackbar(
-            "red lower bound", "binary_window", self.rl, 255, self.set_rl
-        )
-        cv2.createTrackbar(
-            "red upper bound", "binary_window", self.rh, 255, self.set_rh
-        )
-        cv2.createTrackbar(
-            "green lower bound", "binary_window", self.gl, 255, self.set_gl
-        )
-        cv2.createTrackbar(
-            "green upper bound", "binary_window", self.gh, 255, self.set_gh
-        )
-        cv2.createTrackbar(
-            "blue lower bound", "binary_window", self.bl, 255, self.set_bl
-        )
-        cv2.createTrackbar(
-            "blue upper bound", "binary_window", self.bh, 255, self.set_bh
-        )
+        # cv2.namedWindow("binary_window")
+        # cv2.createTrackbar(
+        #     "red lower bound", "binary_window", self.rl, 255, self.set_rl
+        # )
+        # cv2.createTrackbar(
+        #     "red upper bound", "binary_window", self.rh, 255, self.set_rh
+        # )
+        # cv2.createTrackbar(
+        #     "green lower bound", "binary_window", self.gl, 255, self.set_gl
+        # )
+        # cv2.createTrackbar(
+        #     "green upper bound", "binary_window", self.gh, 255, self.set_gh
+        # )
+        # cv2.createTrackbar(
+        #     "blue lower bound", "binary_window", self.bl, 255, self.set_bl
+        # )
+        # cv2.createTrackbar(
+        #     "blue upper bound", "binary_window", self.bh, 255, self.set_bh
+        # )
 
         while self.active:
             self.run_loop()
@@ -93,7 +93,7 @@ class testing:
             # self.binary_image = cv2.inRange(
             #     self.cv_image, (self.rl, self.gl, self.bl), (self.rh, self.gh, self.bh))
 
-            cv2.imshow('video_window', self.cv_image)
+            cv2.imshow("video_window", self.cv_image)
             # cv2.imshow('binary_window', self.binary_image)
 
             self.check_input()
@@ -109,13 +109,13 @@ class testing:
             pts = self.find_birdsong_border(contours[0][1], self.birdsong)
             print(pts)
             # Br Bl Tl Tr
-            transformed_corners = [
-                (204.4, 276), (46, 276), (46, 258), (204.4, 258)]
+            transformed_corners = [(204.4, 276), (46, 276), (46, 258), (204.4, 258)]
             cv2.namedWindow("Original image")
             cv2.namedWindow("Transformed image")
             cv2.imshow("Original image", self.cv_image)
             trans_image = transform_eyrie_board.transform_board(
-                pts, transformed_corners, self.cv_image)
+                pts, transformed_corners, self.cv_image
+            )
             cv2.imshow("Transformed image", trans_image)
 
     def blur(self, img):
@@ -216,7 +216,7 @@ class testing:
     def set_border(self, xs, ys):
         print(xs[0], xs[1])
         print(ys[1], ys[0])
-        self.cv_image = self.cv_image[ys[1]: ys[0], xs[0]: xs[1]]
+        self.cv_image = self.cv_image[ys[1] : ys[0], xs[0] : xs[1]]
 
     def set_rl(self, val):
         """A callback function to handle the OpenCV slider to select the red lower bound"""
@@ -286,8 +286,7 @@ def appx_best_fit_ngon(mask_cv2, n: int = 4) -> list[(int, int)]:
             intersect = adj_edge_1.intersection(adj_edge_2)[0]
 
             # the area of the triangle we'll be adding
-            area = sympy.N(sympy.Triangle(
-                edge_pt_1, intersect, edge_pt_2).area)
+            area = sympy.N(sympy.Triangle(edge_pt_1, intersect, edge_pt_2).area)
             # should be the lowest
             if best_candidate and best_candidate[1] < area:
                 continue
@@ -337,7 +336,9 @@ def move_closest_point_towards(target_point, points, step=1.0):
     else:
         raise ValueError("points must be a sequence of (x,y) pairs")
 
-    tgt = np.asarray(target_point, dtype=float).reshape(2,)
+    tgt = np.asarray(target_point, dtype=float).reshape(
+        2,
+    )
 
     # compute vector from target to each candidate point
     deltas = pts - tgt  # shape (N,2): vector from target -> candidate

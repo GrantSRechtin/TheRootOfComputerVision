@@ -34,19 +34,20 @@ def transform_board(birdsong_corners, transformed_corners, image):
     )
     board_width = 273.7
     perc_uncertainty = 0.01
+    # Width of image birdsong divided by the actual width
     scale_factor = abs(transformed_corners[0][0] - transformed_corners[2][0]) / 110
     x_max = round(
-        transformed_corners[0][0]
+        transformed_corners[1][0]  # Bottom left corner
         + scale_factor * (board_width - 8.5)
         + perc_uncertainty * scale_factor * (board_width - 8.5)
     )
     x_min = round(
-        transformed_corners[0][0]
+        transformed_corners[1][0]  # Bottom left corner
         - scale_factor * 8.5
         - perc_uncertainty * scale_factor * 8.5
     )
 
-    return trans_image#[:, x_min:x_max]
+    return trans_image[:, x_min:x_max]
 
 
 # def click_event(event, x, y, flags, params):
