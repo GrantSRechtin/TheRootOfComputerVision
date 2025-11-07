@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import helper_functions as hp
 
 def detect_roosts(player_board):
     """
@@ -26,11 +27,11 @@ def detect_roosts(player_board):
     # cv2.imshow("Binary image", binary_image)
 
     # Generate contours
-    contours = player_board.create_binary_contours(binary_image)
+    contours = hp.create_binary_contours(binary_image)
     # Filter contours by area
     roost_contour = []
     for i in contours:
-        if 1250 > i[0] > 1000:
+        if 750 > i[0] > 550:
             roost_contour.append(i[1])
     return roost_contour
 

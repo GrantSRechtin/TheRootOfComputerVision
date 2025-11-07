@@ -1,7 +1,7 @@
 import cv2
 import math
 import numpy as np
-from initial_test import testing as test
+from main import player_board
 
 
 def transform_board(birdsong_corners, transformed_corners, image):
@@ -68,7 +68,7 @@ def transform_board(birdsong_corners, transformed_corners, image):
         - perc_uncertainty * scale_factor * 8.5
     )
 
-    return trans_image[:, x_min:x_max]
+    return trans_image[:, x_min:x_max], scale_factor
 
 
 # def click_event(event, x, y, flags, params):

@@ -25,7 +25,7 @@ def detect_decree(image, scale_factor):
     category_threshold = round(70 * scale_factor)
     board_width = 273.7
     # Approximate number of pixels in one card banner
-    banner_area = 450000
+    banner_area = 400000
     # Half the width of the board in pixels
     board_center = round(scale_factor * board_width / 2)
     mouse_filter = [110, 280, 140, 190, 210, 250]
@@ -33,7 +33,7 @@ def detect_decree(image, scale_factor):
     fox_filter = [50, 130, 45, 70, 80, 230]
     bird_filter = [190, 220, 170, 200, 110, 170]
     all_filters = [mouse_filter, bunny_filter, fox_filter, bird_filter]
-    # cv2.namedWindow("Binary image")
+    #cv2.namedWindow("Binary image")
     for filter in all_filters:
         # Define bounds for Red, Green, and Blue to include in binary image
         rl = filter[0]
@@ -63,7 +63,7 @@ def detect_decree(image, scale_factor):
         #     key = cv2.waitKey(20)
         #     if key == 27:
         #         exit_status = True
-        return full_decree
+    return full_decree
 
 
 if __name__ == "__main__":
