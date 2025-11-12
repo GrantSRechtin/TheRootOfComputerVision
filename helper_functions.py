@@ -10,13 +10,14 @@ import color_testing
 from operator import itemgetter
 
 def blur(img):
+    """Blurs the image to a standard level to help with birdsong contour detection"""
     h, w, channels = img.shape
     return cv2.resize(
         cv2.resize(img, (700, 550), interpolation=cv2.INTER_AREA), (w, h)
     )
 
 def create_binary_contours(binary_image, invert=False):
-
+    """Creates contours for binary images"""
     if invert:
         binary_image = cv2.bitwise_not(binary_image)
 
@@ -32,7 +33,7 @@ def create_binary_contours(binary_image, invert=False):
     return contours
 
 def create_contours(image):
-
+    """Creates contours for non-binary images"""
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     edged = cv2.Canny(gray, 30, 200)
     contour_list, hierarchy = cv2.findContours(
@@ -47,6 +48,7 @@ def create_contours(image):
     return contours
 
 def appx_best_fit_ngon(mask_cv2, n: int = 4) -> list[(int, int)]:
+    """Find the quadrilateral with the lowest area (found on stack overflow)"""
     # convex hull of the input mask
     mask_cv2_gray = cv2.cvtColor(mask_cv2, cv2.COLOR_RGB2GRAY)
     contours, _ = cv2.findContours(
@@ -110,16 +112,6 @@ def appx_best_fit_ngon(mask_cv2, n: int = 4) -> list[(int, int)]:
     hull = [(int(x), int(y)) for x, y in hull]
 
     return hull
-
-def map_to_list(map):
-    coords = []
-    h = len(map)
-    w = len(map[0]) if h > 0 else 0
-    for x in range(h):
-        for y in range(w):
-            if map[x][y] == 255:
-                coords.append([x, y])
-    return np.array(coords, dtype=int)
 
 def move_closest_point_towards(target_point, points, step=1):
     """Move the target_point a little closer to the nearest point in `points`.
