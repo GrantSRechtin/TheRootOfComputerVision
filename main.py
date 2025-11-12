@@ -32,14 +32,14 @@ class player_board:
 
         self.vc = cv2.VideoCapture(0)  # Webcam w=640 h=480
 
-        path_base = "board_with_table.png"
+        path_base = "Images/board_with_table.png"
         self.base_img = cv2.imread(path_base)
         self.sw = len(self.base_img)
         self.sh = len(self.base_img[0])
 
-        #path = "IMG_1695.JPG"
-        path = "52B-RootBaseFactionBoardwithComponents-Editv2-web.webp"
-        #path = "board_with_table.png"
+        #path = "Images/IMG_1695.JPG"
+        path = "Images/52B-RootBaseFactionBoardwithComponents-Editv2-web.webp"
+        #path = "Images/board_with_table.png"
         self.img = cv2.imread(path)
 
         self.clear = copy.copy(self.img)
@@ -182,14 +182,14 @@ class player_board:
             while d > 3:
                 pts[i], d = hp.move_closest_point_towards(pts[i], contours[0][1],2)
 
-        contour = self.cv_image.copy()
-        cv2.drawContours(contour, [contours[0][1]], 0, (0, 0, 255), 1)
+        icontour = self.cv_image.copy()
+        cv2.drawContours(icontour, [contour], 0, (0, 0, 255), 1)
 
         result = self.cv_image.copy()
         cv2.polylines(result, [pts], True, (0, 0, 255), 2)
 
         # cv2.namedWindow("CONTOUR", cv2.WINDOW_NORMAL)
-        # cv2.imshow("CONTOUR", contour)
+        # cv2.imshow("CONTOUR", icontour)
 
         # cv2.namedWindow("QUAD", cv2.WINDOW_NORMAL)
         # cv2.imshow("QUAD", result)
