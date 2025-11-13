@@ -1,8 +1,6 @@
 import cv2
-import time
 import numpy as np
 import sympy
-import copy
 import transform_eyrie_board
 import roost_detection
 import decree_detection

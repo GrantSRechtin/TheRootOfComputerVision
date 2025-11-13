@@ -1,14 +1,11 @@
 import cv2
 import time
-import numpy as np
-import sympy
 import copy
 import transform_eyrie_board
 import roost_detection
 import decree_detection
 import color_testing
 import helper_functions as hp
-from operator import itemgetter
 
 
 # Adjust range if no area found
