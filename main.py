@@ -133,8 +133,8 @@ class player_board:
             )
         )
 
-        # cv2.namedWindow("Original image")
-        # cv2.imshow("Original image", self.cv_image)
+        cv2.namedWindow("Original image", cv2.WINDOW_NORMAL)
+        cv2.imshow("Original image", self.cv_image)
 
         self.current_image = copy.copy(self.translated_image)
 
@@ -212,7 +212,6 @@ class player_board:
     def esc(self):
         """Closes the system"""
         cv2.destroyAllWindows()
-        self.vc.release()
         self.active = False
 
 
