@@ -4,7 +4,7 @@ import numpy as np
 import sympy
 import copy
 import transform_eyrie_board
-import roost_detection_test
+import roost_detection
 import decree_detection
 import color_testing
 import helper_functions as hp
@@ -18,7 +18,7 @@ class player_board:
     """Player board controller for Eyrie game.
 
     Loads and processes a board image.
-    Locates the Birdsong region and computes perspective transform 
+    Locates the Birdsong region and computes perspective transform
         so the board can be analyzed
     Detects roosts and cards on the oriented board and displays them
 
@@ -89,13 +89,14 @@ class player_board:
 
     def update_board(self):
         """Prints the current roosts and cards in each slot on the player board"""
-        
-        contours = roost_detection_test.detect_roosts(self)
+
+        contours = roost_detection.detect_roosts(self)
 
         print(f"Roosts: {len(contours)}")
 
         recruit, move, battle, build = decree_detection.detect_decree(
-            self.current_image, self.scale_factor)
+            self.current_image, self.scale_factor
+        )
 
         print("Recruit:")
         self.display_cards(recruit)
@@ -125,10 +126,11 @@ class player_board:
         contours = hp.create_binary_contours(bs_binary)
         pts = self.find_birdsong_border(contours[0][1], self.birdsong)
 
-        transformed_corners = [
-            (46, 258), (46, 276), (204.4, 258), (204.4, 276)]
-        self.translated_image, self.scale_factor = transform_eyrie_board.transform_board(
-            pts, transformed_corners, self.cv_image
+        transformed_corners = [(46, 258), (46, 276), (204.4, 258), (204.4, 276)]
+        self.translated_image, self.scale_factor = (
+            transform_eyrie_board.transform_board(
+                pts, transformed_corners, self.cv_image
+            )
         )
 
         # cv2.namedWindow("Original image")
@@ -176,11 +178,9 @@ class player_board:
 
         # Shifts points to closest point within the contour
         for i in range(len(pts)):
-            pts[i], d = hp.move_closest_point_towards(
-                pts[i], contours[0][1], 2)
+            pts[i], d = hp.move_closest_point_towards(pts[i], contours[0][1], 2)
             while d > 3:
-                pts[i], d = hp.move_closest_point_towards(
-                    pts[i], contours[0][1], 2)
+                pts[i], d = hp.move_closest_point_towards(pts[i], contours[0][1], 2)
 
         # icontour = self.cv_image.copy()
         # cv2.drawContours(icontour, [contour], 0, (0, 0, 255), 1)
@@ -214,6 +214,7 @@ class player_board:
         cv2.destroyAllWindows()
         self.vc.release()
         self.active = False
+
 
 if __name__ == "__main__":
     playerBoard = player_board()

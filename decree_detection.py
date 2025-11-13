@@ -25,7 +25,7 @@ def detect_decree(image, scale_factor):
     category_threshold = round(70 * scale_factor)
     board_width = 273.7
     # Approximate number of pixels in one card banner
-    banner_area = 400000
+    banner_area = [400000, 400000, 400000, 400000]
     # Half the width of the board in pixels
     board_center = round(scale_factor * board_width / 2)
     mouse_filter = [110, 280, 140, 190, 210, 250]
@@ -33,7 +33,7 @@ def detect_decree(image, scale_factor):
     fox_filter = [50, 130, 45, 70, 80, 230]
     bird_filter = [190, 220, 170, 200, 110, 170]
     all_filters = [mouse_filter, bunny_filter, fox_filter, bird_filter]
-    #cv2.namedWindow("Binary image")
+    # cv2.namedWindow("Binary image")
     for filter in all_filters:
         # Define bounds for Red, Green, and Blue to include in binary image
         rl = filter[0]
@@ -44,6 +44,7 @@ def detect_decree(image, scale_factor):
         bh = filter[5]
         # Generate binary image
         binary_image = cv2.inRange(image, (rl, gl, bl), (rh, gh, bh))
+        # Segment the image into four slices for each card location
         segment_one = binary_image[:, : (board_center - category_threshold)]
         segment_two = binary_image[
             :, (board_center - category_threshold) : board_center
@@ -52,11 +53,10 @@ def detect_decree(image, scale_factor):
             :, board_center : (board_center + category_threshold)
         ]
         segment_four = binary_image[:, (board_center + category_threshold) :]
-
         all_segments = [segment_one, segment_two, segment_three, segment_four]
-
+        # Calculate the number of cards in each slice
         for i in range(4):
-            full_decree[i] += [round(np.sum(all_segments[i]) / banner_area)]
+            full_decree[i] += [round(np.sum(all_segments[i]) / banner_area[i])]
         # exit_status = False
         # while exit_status is False:
         #     cv2.imshow("Binary image", binary_image)

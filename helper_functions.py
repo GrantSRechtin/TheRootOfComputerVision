@@ -4,17 +4,17 @@ import numpy as np
 import sympy
 import copy
 import transform_eyrie_board
-import roost_detection_test
+import roost_detection
 import decree_detection
 import color_testing
 from operator import itemgetter
 
+
 def blur(img):
     """Blurs the image to a standard level to help with birdsong contour detection"""
     h, w, channels = img.shape
-    return cv2.resize(
-        cv2.resize(img, (700, 550), interpolation=cv2.INTER_AREA), (w, h)
-    )
+    return cv2.resize(cv2.resize(img, (700, 550), interpolation=cv2.INTER_AREA), (w, h))
+
 
 def create_binary_contours(binary_image, invert=False):
     """Creates contours for binary images"""
@@ -25,12 +25,11 @@ def create_binary_contours(binary_image, invert=False):
         binary_image, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE
     )
     contour_areas = [cv2.contourArea(c) for c in contour_list]
-    contours = [
-        (contour_areas[i], contour_list[i]) for i in range(len(contour_list))
-    ]
+    contours = [(contour_areas[i], contour_list[i]) for i in range(len(contour_list))]
     contours = sorted(contours, key=itemgetter(0))[::-1]
 
     return contours
+
 
 def create_contours(image):
     """Creates contours for non-binary images"""
@@ -40,12 +39,11 @@ def create_contours(image):
         edged, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE
     )
     contour_areas = [cv2.contourArea(c) for c in contour_list]
-    contours = [
-        (contour_areas[i], contour_list[i]) for i in range(len(contour_list))
-    ]
+    contours = [(contour_areas[i], contour_list[i]) for i in range(len(contour_list))]
     contours = sorted(contours, key=itemgetter(0))[::-1]
 
     return contours
+
 
 def appx_best_fit_ngon(mask_cv2, n: int = 4) -> list[(int, int)]:
     """Find the quadrilateral with the lowest area (found on stack overflow)"""
@@ -91,8 +89,7 @@ def appx_best_fit_ngon(mask_cv2, n: int = 4) -> list[(int, int)]:
             intersect = adj_edge_1.intersection(adj_edge_2)[0]
 
             # the area of the triangle we'll be adding
-            area = sympy.N(sympy.Triangle(
-                edge_pt_1, intersect, edge_pt_2).area)
+            area = sympy.N(sympy.Triangle(edge_pt_1, intersect, edge_pt_2).area)
             # should be the lowest
             if best_candidate and best_candidate[1] < area:
                 continue
@@ -112,6 +109,7 @@ def appx_best_fit_ngon(mask_cv2, n: int = 4) -> list[(int, int)]:
     hull = [(int(x), int(y)) for x, y in hull]
 
     return hull
+
 
 def move_closest_point_towards(target_point, points, step=1):
     """Move the target_point a little closer to the nearest point in `points`.
@@ -139,7 +137,7 @@ def move_closest_point_towards(target_point, points, step=1):
         # list of tuples
         pts = np.asarray([tuple(p) for p in arr], dtype=float)
     else:
-        #print(points)
+        # print(points)
         raise ValueError("points must be a sequence of (x,y) pairs")
 
     tgt = np.asarray(target_point, dtype=float).reshape(
@@ -156,7 +154,7 @@ def move_closest_point_towards(target_point, points, step=1):
         return tgt, idx
 
     move = min(step, dist)
-    
+
     direction = deltas[idx] / dist
     new_tgt = tgt + direction * move
 
